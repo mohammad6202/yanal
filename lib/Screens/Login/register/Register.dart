@@ -141,19 +141,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   UserCredential user =
                       await auth.createUserWithEmailAndPassword(
                           email: emailC.text, password: passwordC.text);
+
                   try {
-                    final docUser = await FirebaseFirestore.instance
+                    final docUser = FirebaseFirestore.instance
                         .collection('users')
-                        .doc();
+                        .doc(user.user!.uid);
                     docUser.set({
                       'id': docUser.id,
                       'Name': nameC.text.toString().trim(),
                       'email': emailC.text.toString().trim(),
                       'role': type.toString()
                     });
+                    DocumentSnapshot data = await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(user.user!.uid)
+                        .get();
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text('Registered Successfully')));
-                    Navigator.pushNamed(context, 'Admin');
+                    if (data['role'] == 'Candidate') {
+                      Navigator.pushReplacementNamed(context, 'Candidate');
+                    }
+                    if (data['role'] == 'Voter') {
+                      Navigator.pushReplacementNamed(context, 'Voter');
+                    }
+                    if (data['role'] == 'Adimn') {
+                      Navigator.pushReplacementNamed(context, 'Admin');
+                    }
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('user  alreaady in use')));

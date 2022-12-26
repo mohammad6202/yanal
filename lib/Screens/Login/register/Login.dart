@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +12,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  DocumentSnapshot? data;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   @override
@@ -86,10 +90,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     .signInWithEmailAndPassword(
                         email: emailController.text,
                         password: passwordController.text);
+                data = await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user.user!.uid)
+                    .get();
+                //log('${data!['role']}');
+                if (!mounted) return;
                 try {
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Login Successfully')));
-                  Navigator.pushNamed(context, 'Admin');
+
+                  if (data!['role'] == 'Candidate') {
+                    Navigator.pushNamed(context, 'Candidate');
+                  }
+
+                  if (data!['role'] == 'Admin') {
+                    Navigator.of(context).pushNamed('Admin');
+                  }
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('user  does not exist')));
