@@ -50,7 +50,7 @@ handleAuthState() {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (BuildContext context, snapshot) {
         if (snapshot.hasData) {
-          getRoleType();
+          return const CandidateScreen();
         }
         return const LoginScreen();
       });
