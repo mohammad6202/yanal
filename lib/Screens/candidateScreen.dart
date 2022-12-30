@@ -10,6 +10,8 @@ class CandidateScreen extends StatefulWidget {
 }
 
 class _CandidateScreenState extends State<CandidateScreen> {
+  GlobalKey<FormState> myFormKey = GlobalKey();
+
   final uid = FirebaseAuth.instance.currentUser!.uid;
   DocumentSnapshot? data;
   Future get(BuildContext context) async {
@@ -27,8 +29,11 @@ class _CandidateScreenState extends State<CandidateScreen> {
   ];
   String? degree;
   TextEditingController jobC = TextEditingController();
-  TextEditingController elecStatC = TextEditingController();
-  TextEditingController major = TextEditingController();
+  TextEditingController cityC = TextEditingController();
+  TextEditingController ssidC = TextEditingController();
+  TextEditingController descrC = TextEditingController();
+  TextEditingController majorC = TextEditingController();
+  TextEditingController degreeC = TextEditingController();
   void initState() {
     super.initState();
     getCurrentUser();
@@ -55,6 +60,7 @@ class _CandidateScreenState extends State<CandidateScreen> {
       ),
       drawer: const CDrawer(),
       body: Form(
+        key: myFormKey,
         child: Container(
           margin: const EdgeInsets.all(20),
           alignment: Alignment.topCenter,
@@ -105,7 +111,12 @@ class _CandidateScreenState extends State<CandidateScreen> {
                 ),
               ),
               TextFormField(
-                controller: major,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'this field is requiered';
+                  }
+                },
+                controller: majorC,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.only(
@@ -128,6 +139,11 @@ class _CandidateScreenState extends State<CandidateScreen> {
                 ),
               ),
               TextFormField(
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'this field is requiered';
+                  }
+                },
                 controller: jobC,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(
@@ -151,7 +167,12 @@ class _CandidateScreenState extends State<CandidateScreen> {
                 ),
               ),
               TextFormField(
-                controller: elecStatC,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'this field is requiered';
+                  }
+                },
+                controller: descrC,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.only(
@@ -170,14 +191,34 @@ class _CandidateScreenState extends State<CandidateScreen> {
                   OutlinedButton(
                       onPressed: () {
                         jobC.clear();
-                        elecStatC.clear();
-                        major.clear();
+                        descrC.clear();
+                        majorC.clear();
                       },
                       child: const Text('Clear')),
                   const SizedBox(
                     width: 5,
                   ),
-                  ElevatedButton(onPressed: () {}, child: const Text('Submit'))
+                  ElevatedButton(
+                      onPressed: () async {
+                        if (myFormKey.currentState!.validate()) {
+                          get(context);
+                          await FirebaseFirestore.instance
+                              .collection('Candidates')
+                              .doc(uid)
+                              .set({
+                            'Full name': data!['Full name'],
+                            'Age': data!['age'],
+                            'SSID': ssidC.text,
+                            'City': cityC.text,
+                            'Degree': degree,
+                            'Major': majorC.text,
+                            'Job role': jobC.text,
+                            'Description': descrC.text,
+                            'Aprooved': 'Waiting...'
+                          });
+                        }
+                      },
+                      child: const Text('Submit'))
                 ],
               )
             ],

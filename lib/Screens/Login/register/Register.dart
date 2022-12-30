@@ -58,7 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   keyboardType: TextInputType.name,
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
-                    labelText: 'Full ',
+                    labelText: 'Full name',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(20),
@@ -188,6 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           .collection('users')
                           .doc(user.user!.uid)
                           .get();
+                      if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                           content: Text('Registered Successfully')));
                       if (data['role'] == 'Candidate') {
@@ -200,8 +201,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Navigator.pushReplacementNamed(context, 'Admin');
                       }
                     } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('user  alreaady in use')));
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text('user  alreaady in use')));
                     }
                   }
                 }),
