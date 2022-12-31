@@ -23,13 +23,16 @@ class _AHomeState extends State<AHome> {
               icon: const Icon(Icons.logout))
         ],
       ),
-      drawer: Drawer(),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          controller: ScrollController(),
-          child: Column(
-            children: [],
-          ),
+      //drawer: Drawer(),
+      body: Container(
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+                fit: BoxFit.fill,
+                opacity: 0.3,
+                image: AssetImage(
+                    'images/3qI8YA0hrd8FREwagmiNQvdl1NviIqILuMrBlwRE.jpeg'))),
+        child: Column(
+          children: [],
         ),
       ),
     );

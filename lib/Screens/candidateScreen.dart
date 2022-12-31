@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +35,6 @@ class _CandidateScreenState extends State<CandidateScreen> {
   TextEditingController ssidC = TextEditingController();
   TextEditingController descrC = TextEditingController();
   TextEditingController majorC = TextEditingController();
-  TextEditingController degreeC = TextEditingController();
   void initState() {
     super.initState();
     getCurrentUser();
@@ -59,169 +60,248 @@ class _CandidateScreenState extends State<CandidateScreen> {
         ],
       ),
       drawer: const CDrawer(),
-      body: Form(
-        key: myFormKey,
-        child: Container(
-          margin: const EdgeInsets.all(20),
-          alignment: Alignment.topCenter,
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              Container(
-                margin: EdgeInsets.only(right: 220),
-                child: Column(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(right: 60),
-                      child: Text(
-                        'Degree',
-                        style: TextStyle(fontSize: 20),
+      body: Container(
+        decoration: const BoxDecoration(
+            image: DecorationImage(
+                fit: BoxFit.fill,
+                opacity: 0.3,
+                image: AssetImage(
+                    'images/3qI8YA0hrd8FREwagmiNQvdl1NviIqILuMrBlwRE.jpeg'))),
+        child: Form(
+          key: myFormKey,
+          child: Container(
+            margin: const EdgeInsets.all(20),
+            alignment: Alignment.topCenter,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 5),
+                    padding: const EdgeInsets.only(bottom: 5),
+                    alignment: Alignment.centerLeft,
+                    child: const Text(
+                      'SSID',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'this field is requiered';
+                      }
+                    },
+                    controller: ssidC,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
                       ),
                     ),
-                    DropdownButton(
-                        value: degree,
-                        items: degrees
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e,
-                                child: Text('$e'),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: ((value) {
-                          setState(() {
-                            degree = value.toString();
-                          });
-                        })),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                margin: const EdgeInsets.only(left: 5),
-                padding: const EdgeInsets.only(bottom: 5),
-                alignment: Alignment.centerLeft,
-                child: const Text(
-                  'Major',
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              TextFormField(
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'this field is requiered';
-                  }
-                },
-                controller: majorC,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
                   ),
-                ),
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              Container(
-                margin: const EdgeInsets.only(left: 5),
-                padding: const EdgeInsets.only(bottom: 5),
-                alignment: Alignment.centerLeft,
-                child: const Text(
-                  'Job Role',
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              TextFormField(
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'this field is requiered';
-                  }
-                },
-                controller: jobC,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              Container(
-                margin: const EdgeInsets.only(left: 5),
-                padding: const EdgeInsets.only(bottom: 5),
-                alignment: Alignment.centerLeft,
-                child: const Text(
-                  'Discreption',
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              TextFormField(
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'this field is requiered';
-                  }
-                },
-                controller: descrC,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 100,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  OutlinedButton(
-                      onPressed: () {
-                        jobC.clear();
-                        descrC.clear();
-                        majorC.clear();
-                      },
-                      child: const Text('Clear')),
                   const SizedBox(
-                    width: 5,
+                    height: 50,
                   ),
-                  ElevatedButton(
-                      onPressed: () async {
-                        if (myFormKey.currentState!.validate()) {
-                          get(context);
-                          await FirebaseFirestore.instance
-                              .collection('Candidates')
-                              .doc(uid)
-                              .set({
-                            'Full name': data!['Full name'],
-                            'Age': data!['age'],
-                            'SSID': ssidC.text,
-                            'City': cityC.text,
-                            'Degree': degree,
-                            'Major': majorC.text,
-                            'Job role': jobC.text,
-                            'Description': descrC.text,
-                            'Aprooved': 'Waiting...'
-                          });
-                        }
-                      },
-                      child: const Text('Submit'))
+                  Container(
+                    margin: const EdgeInsets.only(left: 5),
+                    padding: const EdgeInsets.only(bottom: 5),
+                    alignment: Alignment.centerLeft,
+                    child: const Text(
+                      'City',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'this field is requiered';
+                      }
+                    },
+                    controller: cityC,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(right: 220),
+                    child: Column(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(right: 60),
+                          child: Text(
+                            'Degree',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                        DropdownButton(
+                            value: degree,
+                            items: degrees
+                                .map(
+                                  (e) => DropdownMenuItem(
+                                    value: e,
+                                    child: Text('$e'),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: ((value) {
+                              setState(() {
+                                degree = value.toString();
+                              });
+                            })),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 5),
+                    padding: const EdgeInsets.only(bottom: 5),
+                    alignment: Alignment.centerLeft,
+                    child: const Text(
+                      'Major',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'this field is requiered';
+                      }
+                    },
+                    controller: majorC,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 5),
+                    padding: const EdgeInsets.only(bottom: 5),
+                    alignment: Alignment.centerLeft,
+                    child: const Text(
+                      'Job Role',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'this field is requiered';
+                      }
+                    },
+                    controller: jobC,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 5),
+                    padding: const EdgeInsets.only(bottom: 5),
+                    alignment: Alignment.centerLeft,
+                    child: const Text(
+                      'Discreption',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                  TextFormField(
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'this field is requiered';
+                      }
+                    },
+                    controller: descrC,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 100,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      OutlinedButton(
+                          onPressed: () {
+                            jobC.clear();
+                            descrC.clear();
+                            majorC.clear();
+                          },
+                          child: const Text('Clear')),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      ElevatedButton(
+                          onPressed: () async {
+                            // log(uid);
+                            // log('${data!['age']}');
+                            // log(ssidC.text);
+                            // log(cityC.text);
+                            // log(degree!);
+                            // log('${data!['Full name']}');
+                            // log(majorC.text);
+                            // log(descrC.text);
+                            // log(jobC.text);
+                            if (myFormKey.currentState!.validate()) {
+                              get(context);
+                              try {
+                                await FirebaseFirestore.instance
+                                    .collection('Candidates')
+                                    .doc(uid)
+                                    .set({
+                                  'Full name': data!['Full name'],
+                                  'Age': data!['age'],
+                                  'SSID': ssidC.text,
+                                  'City': cityC.text,
+                                  'Degree': degree,
+                                  'Major': majorC.text,
+                                  'Job role': jobC.text,
+                                  'Description': descrC.text,
+                                  'Aprooved': 'Waiting...'
+                                });
+                              } catch (e) {
+                                throw (e);
+                              }
+                            }
+                          },
+                          child: const Text('Submit'))
+                    ],
+                  )
                 ],
-              )
-            ],
+              ),
+            ),
           ),
         ),
       ),
